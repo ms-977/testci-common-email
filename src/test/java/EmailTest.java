@@ -5,158 +5,93 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.Date;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class EmailTest {
-	public static final String[] TEST_EMAILS = {"abc@c.com","twa.ab@m.com","mre3@m.com"};
+    private EmailConcrete email;
+    public static final String[] TEST_EMAILS = {"abc@c.com","twa.ab@m.com","mre3@m.com"};
 
-	private EmailConcrete email;
-	
-	
     @Before 
-	public void setUpEmialTest() throws Exception{
-		
-		email = new EmailConcrete();
-		
-	}
+    public void setUpEmailTest() throws Exception {
+        email = new EmailConcrete();
+    }
     
     @After 
     public void tearDownEmailTest() throws Exception {
-    	
+        email = null;
     }
-    
-    
-    // Email  addBcc(String... emails)
     
     @Test
     public void testAddBcc() throws Exception {
-    	
-    	email.addBcc(TEST_EMAILS);
-    	
-    	assertEquals(3,email.getBccAddresses().size());
+        email.addBcc(TEST_EMAILS);
+        assertEquals(3, email.getBccAddresses().size());
     }
     
-    //Email  addCc(String email)
-
     @Test 
     public void testAddCc() throws Exception {
-
-        email.addCc(TEST_EMAILS); // Assuming email is an instance of the Email class
-        
-        assertEquals(3, email.getCcAddresses().size()); // Assuming getCcAddresses() returns a list of CC addresses
-       
+        for (String email : TEST_EMAILS) {
+            email.addCc(email);
+        }
+        assertEquals(3, email.getCcAddresses().size());
     }
     
-    //void     addHeader(String name, String value)
-
     @Test
     public void testAddHeader() {
-        // Test data
-        String name = "jhon";
-       
-
-        // Call the method
-        email.addHeader(name, TEST_EMAILS[0]);
-
-        // Check if the header was added correctly
-        assertEquals(TEST_EMAILS[0],name );
+        String name = "X-Test-Header";
+        String value = "Test Value";
+        email.addHeader(name, value);
+        assertEquals(value, email.headers.get(name));
     }
     
-    //Email  addReplyTo(String email, String name)
-
-
     @Test
     public void testAddReplyToWithName() throws Exception {
-    	String replyname="jhon";
-        // Test data
-        email.addReplyTo(TEST_EMAILS[0],replyname);
-        assertEquals(TEST_EMAILS[0],email.getReplyToAddresses());
-        assertEquals(email.getReplyToAddresses(),replyname);
-        
+        String replyName = "John";
+        email.addReplyTo(TEST_EMAILS[0], replyName);
+        assertEquals(TEST_EMAILS[0], email.getReplyToAddresses().get(0));
+        assertEquals(replyName, email.getReplyToAddresses().get(1));
     }
-    
-    //void  buildMimeMessage()
-
-
     
     @Test
-    public void testBuildMineMessage() throws Exception{
-    	
-    	String mainmsg="hello";
-    	email.setMsg(mainmsg);
-    	email.addTo(TEST_EMAILS[1]);
-    	email.setFrom(TEST_EMAILS[2]);
-    	email.buildMimeMessage();
-    	
-    	assertNotNull(email.getMimeMessage());
-    	
+    public void testBuildMimeMessage() throws Exception {
+        String mainMsg = "Hello";
+        email.setMsg(mainMsg);
+        email.addTo(TEST_EMAILS[1]);
+        email.setFrom(TEST_EMAILS[2]);
+        email.buildMimeMessage();
+        assertNotNull(email.getMimeMessage());
     }
     
-    //getHostName
     @Test
     public void testGetHostName() {
-        
-        email.setHostName(TEST_EMAILS[0]);
-        assertEquals(TEST_EMAILS[0], email.getHostName());
-
-        email.setHostName(null); // Reset hostName
+        String hostName = "mail.example.com";
+        email.setHostName(hostName);
+        assertEquals(hostName, email.getHostName());
+        email.setHostName(null);
         assertNull(email.getHostName());
     }
     
-    
-    //Date  getSentDate()
-
     @Test
     public void testGetSentDate() {
-        // Case 1: When sentDate is null
-        Date expectedDate = new Date(0);
-        email.setSentDate(null);
-        Date actualDate = (Date) email.getSentDate();
-        assertNotNull(actualDate);
-        assertTrue(actualDate.compareTo(expectedDate) <= 0); // Check if actual date is not after the current time
-
+        assertNull(email.getSentDate());
     }
     
-    
-    // int getSocketConnectionTimeout()
-
-
     @Test
     public void testGetSocketConnectionTimeout() {
-        // Set up test data
-        int expectedTimeout = 5000; // Example timeout value
-
-        // Set the socket connection
-        email.setSocketConnectionTimeout(expectedTimeout);
-
-        // Call  method
-        int actualTimeout = email.getSocketConnectionTimeout();
-
-        // Verify timeout matches the expected result
-        assertEquals(expectedTimeout, actualTimeout);
+        int timeout = 5000;
+        email.setSocketConnectionTimeout(timeout);
+        assertEquals(timeout, email.getSocketConnectionTimeout());
     }
-    
-    //Email  setFrom(String email)
     
     @Test
-    public void testSetFrom() throws EmailException {
-        
-
-        // Call the method
-        Email result = email.setFrom(TEST_EMAILS[0]);
-
-        // make sure that resultt is no tnull that the result is not null
+    public void testSetFrom() {
+        String fromEmail = "sender@example.com";
+        Email result = email.setFrom(fromEmail);
         assertNotNull(result);
-
-        //verify other the result or the email object itself
+        assertEquals(fromEmail, email.getFromAddress());
     }
-   
-  
 }
-
-
- 
