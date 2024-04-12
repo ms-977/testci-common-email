@@ -35,7 +35,7 @@ public class EmailTest {
     @Test 
     public void testAddCc() throws Exception {
         for (String email : TEST_EMAILS) {
-            email.addCc(email);
+            email.addCc(TEST_EMAILS[0]);
         }
         assertEquals(3, email.getCcAddresses().size());
     }
